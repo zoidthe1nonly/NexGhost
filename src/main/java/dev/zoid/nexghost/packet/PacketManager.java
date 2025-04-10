@@ -1,12 +1,14 @@
+
 package dev.zoid.nexghost.packet;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.concurrent.CompletableFuture;
 
 public class PacketManager {
 
@@ -73,16 +75,42 @@ public class PacketManager {
     }
 
     public void updateSlot(Player player, int slot) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                Object serverPlayer = getHandleMethod.invoke(craftPlayerClass.cast(player));
-                Object nmsItemStack = asNMSCopyMethod.invoke(null, (Object) null);
-                Object packet = containerSetSlotPacketConstructor.newInstance(0, 0, slot + 36, nmsItemStack);
-                Object connection = connectionField.get(serverPlayer);
-                sendPacketMethod.invoke(connection, packet);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        try {
+            Object serverPlayer = getHandleMethod.invoke(craftPlayerClass.cast(player));
+            Object nmsItemStack = asNMSCopyMethod.invoke(null, new ItemStack(Material.AIR));
+
+            Object connection = connectionField.get(serverPlayer);
+
+            Object packet1 = containerSetSlotPacketConstructor.newInstance(-1, -1, slot + 36, nmsItemStack);
+            sendPacketMethod.invoke(connection, packet1);
+
+            Object packet2 = containerSetSlotPacketConstructor.newInstance(0, 0, slot + 36, nmsItemStack);
+            sendPacketMethod.invoke(connection, packet2);
+
+            Object packet3 = containerSetSlotPacketConstructor.newInstance(-2, -2, slot + 36, nmsItemStack);
+            sendPacketMethod.invoke(connection, packet3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateOffHandSlot(Player player) {
+        try {
+            Object serverPlayer = getHandleMethod.invoke(craftPlayerClass.cast(player));
+            Object nmsItemStack = asNMSCopyMethod.invoke(null, new ItemStack(Material.AIR));
+
+            Object connection = connectionField.get(serverPlayer);
+
+            Object packet1 = containerSetSlotPacketConstructor.newInstance(-1, -1, 45, nmsItemStack);
+            sendPacketMethod.invoke(connection, packet1);
+
+            Object packet2 = containerSetSlotPacketConstructor.newInstance(0, 0, 45, nmsItemStack);
+            sendPacketMethod.invoke(connection, packet2);
+
+            Object packet3 = containerSetSlotPacketConstructor.newInstance(-2, -2, 45, nmsItemStack);
+            sendPacketMethod.invoke(connection, packet3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

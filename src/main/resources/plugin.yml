@@ -1,0 +1,4 @@
+name: NexGhost
+version: '1.0.1'
+main: dev.zoid.nexghost.NexGhost
+api-version: '1.21'
